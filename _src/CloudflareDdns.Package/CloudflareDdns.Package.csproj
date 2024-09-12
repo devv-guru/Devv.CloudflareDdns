@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<RootNamespace>CloudflareDdns</RootNamespace>
+		<RootNamespace>Devv.CloudflareDdns</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 		<!-- NuGet package metadata -->
@@ -18,6 +18,10 @@
 		<PackageProjectUrl>https://www.nuget.org/packages/Devv.CloudflareDdns/</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>images/devv.png</PackageIcon>
+		<AssemblyName>Devv.CloudflareDdns</AssemblyName>
+		<Title>Devv.CloudflareDdns</Title>
+		<PackageLicenseUrl>https://github.com/devv-guru/Devv.CloudflareDdns?tab=BSD-3-Clause-1-ov-file#readme</PackageLicenseUrl>
+		<Product>Devv.CloudflareDdns</Product>
 		<!-- NuGet package metadata -->
 	</PropertyGroup>
 
