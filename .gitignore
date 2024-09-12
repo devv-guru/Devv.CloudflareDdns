@@ -396,3 +396,49 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Rider specific
+.idea/
+.idea/**/*
+.idea_modules/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/gradle.xml
+.idea/libraries
+.idea/.idea_modules.xml
+.idea/misc.xml
+.idea/vcs.xml
+
+# User-specific stuff
+*.iml
+*.iws
+*.ipr
+
+# Rider's project configuration
+.idea/assetWizardState.xml
+.idea/maven.xml
+.idea/kotlin.xml
+.idea/runConfigurations/
+.idea/artifacts/
+
+# Build results and other IDE-specific files
+out/
+build/
+*.class
+
+# JetBrains Rider cache
+.idea/caches/
+.idea/inspectionProfiles
+.idea/modules.xml
+.idea/jsLinters/
+.idea/jsLibraryMappings.xml
+.idea/sqlDataSources.xml
+.idea/tasks.xml
+
+# Logs and other temp files
+.idea/deployment.xml
+.idea/usage.statistics.xml
+.idea/docker.xml
+.idea/csvPlugin.xml
+
