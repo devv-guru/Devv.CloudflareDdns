@@ -4,6 +4,7 @@ trigger:
       - main  # Adjust this if you want to trigger the pipeline on different branches
 
 pool:
+  name: Azure Pipelines
   vmImage: 'ubuntu-latest'
 
 variables:
