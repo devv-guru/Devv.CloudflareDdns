@@ -2,7 +2,7 @@
 
 public class CloudFlareOptions
 {
-    public const string SectionName = "CloudFlare";
+    public const string SectionName = "CloudflareDdns";
 
     public required string? Email { get; set; }
     public required string? Key { get; set; }
