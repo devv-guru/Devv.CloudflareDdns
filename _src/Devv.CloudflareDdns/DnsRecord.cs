@@ -1,4 +1,4 @@
-﻿namespace CloudflareDdns.Package;
+﻿namespace Devv.CloudflareDdns;
 
 public class DnsRecord
 {

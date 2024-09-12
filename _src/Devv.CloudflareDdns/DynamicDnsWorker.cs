@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+using Microsoft.Extensions.Logging;
 
-namespace CloudflareDdns.Package;
+namespace Devv.CloudflareDdns;
 
 public class DynamicDnsWorker : BackgroundService
 {

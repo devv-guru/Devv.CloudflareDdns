@@ -1,14 +1,19 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
-namespace CloudflareDdns.Package
+
+namespace Devv.CloudflareDdns
 {
     public static class ConfigureServices
     {
         public static IServiceCollection AddCloudflareDynamicDns(this IServiceCollection services, IConfiguration configuration)
         {            
-            services.AddOptions<CloudFlareOptions>().BindConfiguration(CloudFlareOptions.SectionName);
+            services.AddOptions<CloudFlareOptions>()
+                .BindConfiguration(CloudFlareOptions.SectionName);
 
             services.AddHttpClient<CloudFlareHttpClient>(options =>
             {

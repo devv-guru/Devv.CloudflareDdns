@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CloudflareDdns.Package;
+namespace Devv.CloudflareDdns;
 
 public class CloudFlareHttpClient
 {

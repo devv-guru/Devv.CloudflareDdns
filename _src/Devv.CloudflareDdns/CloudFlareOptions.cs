@@ -1,17 +1,17 @@
-﻿namespace CloudflareDdns.Package;
+﻿namespace Devv.CloudflareDdns;
 
 public class CloudFlareOptions
 {
     public const string SectionName = "CloudflareDdns";
 
-    public required string? Email { get; set; }
-    public required string? Key { get; set; }
+    public string? Email { get; set; }
+    public string? Key { get; set; }
     public Records[]? Records { get; set; }
 }
 
 public class Records
 {
-    public required string? ZoneId { get; set; }
-    public required string? DnsRecordId { get; set; }
-    public required string? Name { get; set; }
+    public string? ZoneId { get; set; }
+    public string? DnsRecordId { get; set; }
+    public string? Name { get; set; }
 }
