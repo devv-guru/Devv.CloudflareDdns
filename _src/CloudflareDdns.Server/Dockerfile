@@ -9,17 +9,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["CloudFlareDDNS/CloudFlareDDNS.csproj", "CloudFlareDDNS/"]
-RUN dotnet restore "./CloudFlareDDNS/CloudFlareDDNS.csproj"
+COPY ["CloudflareDdns.Server/CloudflareDdns.Server.csproj", "CloudflareDdns.Server/"]
+RUN dotnet restore "./CloudflareDdns.Server/CloudflareDdns.Server.csproj"
 COPY . .
-WORKDIR "/src/CloudFlareDDNS"
-RUN dotnet build "./CloudFlareDDNS.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/CloudflareDdns.Server"
+RUN dotnet build "./CloudflareDdns.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./CloudFlareDDNS.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./CloudflareDdns.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CloudFlareDDNS.dll"]
+ENTRYPOINT ["dotnet", "CloudflareDdns.Server.dll"]
