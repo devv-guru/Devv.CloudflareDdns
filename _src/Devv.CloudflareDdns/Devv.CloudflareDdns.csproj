@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<RootNamespace>Devv.CloudflareDdns</RootNamespace>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 
 		<!-- NuGet package metadata -->
 		<PackageId>Devv.CloudflareDdns</PackageId>
@@ -14,17 +14,19 @@
 		<Company>devv.guru</Company>
 		<Description>A .NET package to dynamically update Cloudflare DNS records based on changes to the public IP address.</Description>
 		<PackageTags>Cloudflare, DNS, Dynamic DNS, DDNS, Networking, DNS Update</PackageTags>
-		<RepositoryUrl>https://github.com/devv-guru</RepositoryUrl>
-		<PackageProjectUrl>https://www.nuget.org/packages/Devv.CloudflareDdns/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/devv-guru/Devv.CloudflareDdns</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/devv-guru/Devv.CloudflareDdns</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<AssemblyName>Devv.CloudflareDdns</AssemblyName>
 		<Title>Devv.CloudflareDdns</Title>
 		<Product>Devv.CloudflareDdns</Product>
 		<PackageIcon>devv.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<!-- NuGet package metadata -->
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="D:\Devv.CloudflareDdns\README.md" Pack="true" PackagePath="README.md"/>
 		<None Include="images\devv.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
