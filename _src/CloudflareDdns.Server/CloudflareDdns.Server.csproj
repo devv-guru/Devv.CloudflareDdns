@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CloudflareDdns.Package\CloudflareDdns.Package.csproj" />
+      <ProjectReference Include="..\Devv.CloudflareDdns\Devv.CloudflareDdns.csproj" />
     </ItemGroup>
 
 </Project>
