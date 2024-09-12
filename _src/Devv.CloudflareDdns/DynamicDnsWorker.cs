@@ -41,8 +41,7 @@ public class DynamicDnsWorker : BackgroundService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "An error occurred while updating the DNS record");
-                throw;
+                _logger.LogError(e, "An error occurred while updating the DNS record");                
             }
         }
     }

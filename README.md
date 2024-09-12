@@ -65,7 +65,7 @@ Below is a basic example of `appsettings.json` configuration:
 
 ```json
 {
-  "CloudFlare": {
+  "CloudflareDdns": {
     "Email": "example@example.com",
     "Key": "your-api-key",
     "Records": [

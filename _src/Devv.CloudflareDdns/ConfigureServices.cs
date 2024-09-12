@@ -1,9 +1,6 @@
-﻿using System.Net.Http.Headers;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 
 
 namespace Devv.CloudflareDdns
@@ -19,7 +16,7 @@ namespace Devv.CloudflareDdns
             {
                 options.BaseAddress = new Uri("https://api.cloudflare.com");
                 options.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", configuration["CloudFlare:Key"]);
+                    new AuthenticationHeaderValue("Bearer", configuration["CloudflareDdns:Key"]);
             });
             
             services.AddHostedService<DynamicDnsWorker>();
