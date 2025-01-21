@@ -1,6 +1,9 @@
 using Azure.Identity;
+using CloudflareDdns.Server.HealthChecks;
 using Devv.CloudflareDdns;
 using Serilog;
+using Serilog.Events;
+using Serilog.Filters;
 
 namespace CloudflareDdns.Server;
 
@@ -40,17 +43,24 @@ public class Program
             builder.Configuration.AddAzureKeyVault(new Uri(vaultUrl), new DefaultAzureCredential());
 
             builder.Services.AddSerilog((services, lc) =>
-                lc.ReadFrom.Configuration(builder.Configuration)
+                lc.WriteTo.Seq(config["Serilog:WriteTo:0:Args:serverUrl"],
+                                LogEventLevel.Information,
+                                apiKey: config["Serilog:WriteTo:0:Args:apiKey"])
+                 .Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
+                    path != null && path.Contains("/_health")))
                 .Enrich.FromLogContext()
                 .WriteTo.Console());
 
-            builder.Services.AddAuthorization();
+            builder.Services.AddHealthChecks();
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
             builder.Services.AddCloudflareDynamicDns(config);
 
             var app = builder.Build();
+
+            app.UseSerilogRequestLogging(options =>
+            {
+                options.GetLevel = LogHelper.ExcludeHealthChecks;
+            });
 
             if (app.Environment.IsDevelopment())
             {
@@ -58,9 +68,7 @@ public class Program
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+            app.MapHealthChecks("/_health");
 
             app.Run();
         }
