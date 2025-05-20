@@ -5,21 +5,25 @@ using System.Net.Http.Headers;
 
 namespace Devv.CloudflareDdns
 {
+    using Microsoft.Extensions.Options;
+
     public static class ConfigureServices
     {
         public static IServiceCollection AddCloudflareDynamicDns(this IServiceCollection services, IConfiguration configuration)
-        {            
+        {
             services.AddOptions<CloudFlareOptions>()
                 .BindConfiguration(CloudFlareOptions.SectionName);
 
-            services.AddHttpClient<CloudFlareHttpClient>(options =>
+            services.AddHttpClient<ICloudFlareService, CloudFlareHttpClient>((sp, client) =>
             {
-                options.BaseAddress = new Uri("https://api.cloudflare.com");
-                options.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", configuration["CloudflareDdns:Key"]);
+                var opts = sp
+                    .GetRequiredService<IOptions<CloudFlareOptions>>()
+                    .Value;
+                client.BaseAddress = opts.ApiUrl;
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", opts.Key);
             });
-            
-            services.AddScoped<ICloudFlareService, CloudFlareHttpClient>();
+
             services.AddScoped<IPublicIpProvider, CloudFlareHttpClient>();
             services.AddHostedService<DynamicDnsWorker>();
 

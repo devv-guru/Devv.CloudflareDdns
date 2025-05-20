@@ -3,7 +3,7 @@
 public class CloudFlareOptions
 {
     public const string SectionName = "CloudflareDdns";
-
+    public Uri? ApiUrl { get; set; } = new Uri("https://api.cloudflare.com");
     public string? Email { get; set; }
     public string? Key { get; set; }
     public Records[]? Records { get; set; }

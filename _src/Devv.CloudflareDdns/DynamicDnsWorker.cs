@@ -6,15 +6,14 @@ namespace Devv.CloudflareDdns;
 
 public class DynamicDnsWorker : BackgroundService
 {
-    private readonly IPublicIpProvider _ipProvider;
-    private readonly ICloudFlareService _cloudFlareService;
     private readonly ILogger<DynamicDnsWorker> _logger;
-    private string _publicIp = string.Empty;
+    private readonly IServiceProvider _serviceProvider;
 
-    public DynamicDnsWorker(IPublicIpProvider ipProvider, ICloudFlareService cloudFlareService, ILogger<DynamicDnsWorker> logger)
+    private string _publicIp = string.Empty;
+    public DynamicDnsWorker(ILogger<DynamicDnsWorker> logger,
+        IServiceProvider serviceProvider)
     {
-        _ipProvider = ipProvider;
-        _cloudFlareService = cloudFlareService;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -24,24 +23,29 @@ public class DynamicDnsWorker : BackgroundService
         {
             try
             {
-                var publicIp = await _ipProvider.GetPublicIpAsync(stoppingToken);
-
-                if (_publicIp != publicIp)
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogInformation("Public IP has changed. Updating DNS record");
-                    _publicIp = publicIp;
-                    await _cloudFlareService.UpdateDnsRecordsAsync(_publicIp, stoppingToken);
-                }
-                else
-                {
-                    _logger.LogInformation("Public IP has not changed");
-                }
+                    var _ipProvider = scope.ServiceProvider.GetRequiredService<IPublicIpProvider>();
+                    var _cloudFlareService = scope.ServiceProvider.GetRequiredService<ICloudFlareService>();
+                    var publicIp = await _ipProvider.GetPublicIpAsync(stoppingToken);
 
-                await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+                    if (_publicIp != publicIp)
+                    {
+                        _logger.LogInformation("Public IP has changed. Updating DNS record");
+                        _publicIp = publicIp;
+                        await _cloudFlareService.UpdateDnsRecordsAsync(_publicIp, stoppingToken);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Public IP has not changed");
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+                }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "An error occurred while updating the DNS record");                
+                _logger.LogError(e, "An error occurred while updating the DNS record");
             }
         }
     }
