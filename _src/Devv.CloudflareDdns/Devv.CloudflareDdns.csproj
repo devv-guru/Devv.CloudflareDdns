@@ -9,7 +9,7 @@
 
 		<!-- NuGet package metadata -->
 		<PackageId>Devv.CloudflareDdns</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Authors>devv</Authors>
 		<Company>devv.guru</Company>
 		<Description>A .NET package to dynamically update Cloudflare DNS records based on changes to the public IP address.</Description>
@@ -21,11 +21,12 @@
 		<Title>Devv.CloudflareDdns</Title>
 		<Product>Devv.CloudflareDdns</Product>
 		<PackageIcon>devv.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<!-- NuGet package metadata -->
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="../README.md" Pack="true" PackagePath="" />
 		<None Include="images\devv.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
