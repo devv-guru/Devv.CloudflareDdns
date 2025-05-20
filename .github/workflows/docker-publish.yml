@@ -14,24 +14,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out your code
+      # 1. Checkout your code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Authenticate to Azure with your SP (sets AZURE_CLIENT_ID & AZURE_CLIENT_SECRET)
+      # 2. Authenticate to Azure (exposes AZURE_CLIENT_ID & AZURE_CLIENT_SECRET)
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 3. Docker login using SP credentials directly
-      - name: Docker login to ACR
-        run: |
-          docker login ${{ env.ACR_LOGIN_SERVER }} \
-            --username $AZURE_CLIENT_ID \
-            --password $AZURE_CLIENT_SECRET
-        # SP app/client ID  → username
-        # SP password/secret → password :contentReference[oaicite:0]{index=0}
+      # 3. Docker login to ACR using SP credentials
+      - name: Docker Login to ACR
+        uses: docker/login@v2
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ env.AZURE_CLIENT_ID }}
+          password: ${{ env.AZURE_CLIENT_SECRET }}
 
       # 4. Build & Push
       - name: Build and Push
