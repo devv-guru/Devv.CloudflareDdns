@@ -2,35 +2,33 @@ name: Build & Push Docker Image to ACR
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 env:
-  # Make sure this is the *full* registry DNS name:
-  # e.g. myacr.azurecr.io (not just "myacr")
-  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
-  IMAGE_NAME:       ${{ vars.IMAGE_NAME }}
+  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}    # e.g. myacr.azurecr.io
+  IMAGE_NAME:       ${{ vars.IMAGE_NAME }}          # e.g. myapp
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Azure Login
+      - name: Azure login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}      # Service principal JSON
 
-      - name: Docker login to ACR
-        # non-interactive login, piping the SP secret on stdin
-        run: |
-          echo "$AZURE_CLIENT_SECRET" | docker login "$ACR_LOGIN_SERVER" \
-            --username "$AZURE_CLIENT_ID" \
-            --password-stdin
+      - name: Log in to ACR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ env.AZURE_CLIENT_ID }}        # set by azure/login
+          password: ${{ env.AZURE_CLIENT_SECRET }}    # set by azure/login
 
-      - name: Build & Push to ACR
+      - name: Build & push
         uses: docker/build-push-action@v5
         with:
           context: ./_src
