@@ -17,6 +17,11 @@ public class Program
         {
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
+
+            foreach (var keyValuePair in config.AsEnumerable())
+            {
+                Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
+            }
             
             config.AddEnvironmentVariables();
 
