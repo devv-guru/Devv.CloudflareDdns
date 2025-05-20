@@ -6,34 +6,31 @@ on:
       - main
 
 env:
+  # Make sure this is the *full* registry DNS name:
+  # e.g. myacr.azurecr.io (not just "myacr")
   ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
-  IMAGE_NAME:     ${{ vars.IMAGE_NAME }}
+  IMAGE_NAME:       ${{ vars.IMAGE_NAME }}
 
 jobs:
   docker:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout your code
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Authenticate to Azure (exports AZURE_CLIENT_ID & AZURE_CLIENT_SECRET)
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 3. Docker login to ACR using SP credentials
-      - name: Docker Login to ACR
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.ACR_LOGIN_SERVER }}
-          username: ${{ env.AZURE_CLIENT_ID }}
-          password: ${{ env.AZURE_CLIENT_SECRET }}
+      - name: Docker login to ACR
+        # non-interactive login, piping the SP secret on stdin
+        run: |
+          echo "$AZURE_CLIENT_SECRET" | docker login "$ACR_LOGIN_SERVER" \
+            --username "$AZURE_CLIENT_ID" \
+            --password-stdin
 
-      # 4. Build & Push
-      - name: Build and Push
+      - name: Build & Push to ACR
         uses: docker/build-push-action@v5
         with:
           context: ./_src
