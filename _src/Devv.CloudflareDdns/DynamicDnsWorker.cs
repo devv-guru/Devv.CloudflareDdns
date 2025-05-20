@@ -6,13 +6,15 @@ namespace Devv.CloudflareDdns;
 
 public class DynamicDnsWorker : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IPublicIpProvider _ipProvider;
+    private readonly ICloudFlareService _cloudFlareService;
     private readonly ILogger<DynamicDnsWorker> _logger;
     private string _publicIp = string.Empty;
 
-    public DynamicDnsWorker(IServiceProvider serviceProvider, ILogger<DynamicDnsWorker> logger)
+    public DynamicDnsWorker(IPublicIpProvider ipProvider, ICloudFlareService cloudFlareService, ILogger<DynamicDnsWorker> logger)
     {
-        _serviceProvider = serviceProvider;
+        _ipProvider = ipProvider;
+        _cloudFlareService = cloudFlareService;
         _logger = logger;
     }
 
@@ -22,15 +24,13 @@ public class DynamicDnsWorker : BackgroundService
         {
             try
             {
-                using var scope = _serviceProvider.CreateScope();
-                var cloudFlareHttpClient = scope.ServiceProvider.GetRequiredService<CloudFlareHttpClient>();
-                var publicIp = await cloudFlareHttpClient.GetPublicIpAsync();
+                var publicIp = await _ipProvider.GetPublicIpAsync(stoppingToken);
 
                 if (_publicIp != publicIp)
                 {
                     _logger.LogInformation("Public IP has changed. Updating DNS record");
                     _publicIp = publicIp;
-                    await cloudFlareHttpClient.RunAsync(_publicIp);
+                    await _cloudFlareService.UpdateDnsRecordsAsync(_publicIp, stoppingToken);
                 }
                 else
                 {

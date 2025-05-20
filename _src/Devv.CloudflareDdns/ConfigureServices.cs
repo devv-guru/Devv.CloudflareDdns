@@ -19,6 +19,8 @@ namespace Devv.CloudflareDdns
                     new AuthenticationHeaderValue("Bearer", configuration["CloudflareDdns:Key"]);
             });
             
+            services.AddScoped<ICloudFlareService, CloudFlareHttpClient>();
+            services.AddScoped<IPublicIpProvider, CloudFlareHttpClient>();
             services.AddHostedService<DynamicDnsWorker>();
 
             return services;

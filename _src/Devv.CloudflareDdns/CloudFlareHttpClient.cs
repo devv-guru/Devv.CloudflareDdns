@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Devv.CloudflareDdns;
 
-public class CloudFlareHttpClient
+public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
 {
     private readonly ILogger<CloudFlareHttpClient> _logger;
     private readonly HttpClient _httpClient;
@@ -52,7 +52,7 @@ public class CloudFlareHttpClient
         }
     }
 
-    public async Task<string> GetPublicIpAsync()
+    public async Task<string> GetPublicIpAsync(CancellationToken cancellationToken)
     {
         var response = await _httpClient.GetAsync("https://api.ipify.org");
 
@@ -62,5 +62,22 @@ public class CloudFlareHttpClient
         }
 
         return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
+    {
+        foreach (var record in _options.Records)
+        {
+            try
+            {
+                _logger.LogInformation("Updating DNS record {recordName}", record.Name);
+                await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name);
+                _logger.LogInformation("DNS record {recordName} updated", record.Name);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An error occurred while updating the DNS record");
+            }
+        }
     }
 }
