@@ -17,6 +17,8 @@ public class Program
         {
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
+            
+            config.AddEnvironmentVariables();
 
             builder.Services.AddSerilog((services, lc) =>
                 lc.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
