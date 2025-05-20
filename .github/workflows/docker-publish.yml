@@ -25,7 +25,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./_src
-          file:    ./_src/CloudflareDdns.Server/Dockerfil
+          file:    ./_src/CloudflareDdns.Server/Dockerfile
           push:    true
           tags:    |
             ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
