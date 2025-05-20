@@ -17,13 +17,9 @@ public class Program
         {
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
-
-            foreach (var keyValuePair in config.AsEnumerable())
-            {
-                Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
-            }
             
             config.AddEnvironmentVariables();
+            builder.Services.AddCloudflareDynamicDns(config);
 
             builder.Services.AddSerilog((services, lc) =>
                 lc.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
@@ -32,7 +28,12 @@ public class Program
                     .WriteTo.Console());
 
             builder.Services.AddHealthChecks();
-            builder.Services.AddCloudflareDynamicDns(config);
+            
+            
+            foreach (var keyValuePair in config.AsEnumerable())
+            {
+                Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
+            }
 
             var app = builder.Build();
 
