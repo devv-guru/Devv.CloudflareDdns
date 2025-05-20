@@ -5,28 +5,27 @@ on:
     branches: [ main ]
 
 env:
-  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}    # e.g. myacr.azurecr.io
-  IMAGE_NAME:       ${{ vars.IMAGE_NAME }}          # e.g. myapp
+  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}    # e.g. vanfmly.azurecr.io
+  IMAGE_NAME:       ${{ vars.IMAGE_NAME }}          # e.g. cfddns
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Azure login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}      # Service principal JSON
+          creds: ${{ secrets.AZURE_CREDENTIALS }}      # your SP JSON
 
-      - name: Azure login and ACR login
-        uses: azure/docker-login@v1
+      - name: Log in to ACR
+        uses: docker/login-action@v2
         with:
-          login-server: ${{ env.ACR_LOGIN_SERVER }}
-          creds:        ${{ secrets.AZURE_CREDENTIALS }}
-
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ env.AZURE_CLIENT_ID }}         # exported by azure/login
+          password: ${{ env.AZURE_CLIENT_SECRET }}     # exported by azure/login
 
       - name: Build & push
         uses: docker/build-push-action@v5
