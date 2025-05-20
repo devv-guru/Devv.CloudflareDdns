@@ -21,7 +21,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ACR login via Azure CLI
-        run: az acr login --name ${{ env.ACR_LOGIN_SERVER }}.split('.')[0]
+        run: |
+          # strip off everything from the first “.”
+          REGISTRY_NAME="${ACR_LOGIN_SERVER%%.*}"
+          echo "Logging in to ACR registry: $REGISTRY_NAME"
+          az acr login --name "$REGISTRY_NAME"
 
       - name: Build & push
         uses: docker/build-push-action@v5
