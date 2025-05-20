@@ -12,7 +12,6 @@ RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 
-# Tell dotnet which platform (linux‐x64) and that we want a self‐contained, single‐file, trimmed app.
 RUN dotnet publish \
     ./CloudflareDdns.Server.csproj \
     -c $BUILD_CONFIGURATION \
@@ -22,8 +21,7 @@ RUN dotnet publish \
     /p:PublishSingleFile=true \
     /p:PublishTrimmed=true \
     /p:PublishReadyToRun=true \
-    /p:UseAppHost=false
-
+    /p:UseAppHost=true
 
 # 3) Final: Debian 12 slim runtime-deps
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final
