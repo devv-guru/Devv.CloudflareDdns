@@ -1,0 +1,53 @@
+name: .NET Release & NuGet Publish
+
+on:
+  push:
+    branches:
+      - main   # or whichever branches you prefer
+
+env:
+  BUILD_CONFIGURATION: Release
+  PROJECT: '**/Devv.CloudflareDdns.csproj'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout your code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install the .NET SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          package-type: sdk
+          dotnet-version: '8.0.x'
+
+      # 3. Restore NuGet packages
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT }}
+
+      # 4. Build the project
+      - name: Build
+        run: dotnet build ${{ env.PROJECT }} --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+
+      # 5. Pack the project into a NuGet package
+      - name: Pack
+        # Here we use GitHub’s run number as a version suffix
+        run: |
+          dotnet pack ${{ env.PROJECT }} \
+            --configuration ${{ env.BUILD_CONFIGURATION }} \
+            --no-build \
+            /p:PackageVersion=1.0.0-${{ github.run_number }}
+
+      # 6. Push to NuGet.org
+      - name: Push package to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "**/*.nupkg" \
+            --api-key $NUGET_API_KEY \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
