@@ -20,6 +20,10 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+         
+      - name: ACR Login via az cli
+        run: |
+          az acr login --name ${{ env.ACR_LOGIN_SERVER }}
       
       - name: Build and push to ACR
         uses: docker/build-push-action@v5
