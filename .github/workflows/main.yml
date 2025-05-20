@@ -7,7 +7,7 @@ on:
 
 env:
   BUILD_CONFIGURATION: Release
-  PROJECT: '**/Devv.CloudflareDdns.csproj'
+  PROJECT: '_src/Devv.CloudflareDdns/Devv.CloudflareDdns.csproj'
 
 jobs:
   build-and-publish:
@@ -40,7 +40,7 @@ jobs:
           dotnet pack ${{ env.PROJECT }} \
             --configuration ${{ env.BUILD_CONFIGURATION }} \
             --no-build \
-            /p:PackageVersion=1.0.0-${{ github.run_number }}
+            /p:PackageVersion=1.0.${{ github.run_number }}
 
       # 6. Push to NuGet.org
       - name: Push package to NuGet.org
