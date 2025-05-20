@@ -23,7 +23,9 @@ jobs:
          
       - name: ACR Login via az cli
         run: |
-          az acr login --name ${{ env.ACR_LOGIN_SERVER }}
+           REGISTRY_NAME="${{ env.ACR_LOGIN_SERVER%%.* }}"
+           echo "Logging into ACR $REGISTRY_NAME"
+           az acr login --name "$REGISTRY_NAME"
       
       - name: Build and push to ACR
         uses: docker/build-push-action@v5
