@@ -66,6 +66,13 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
 
     public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
     {
+        if(_options.Records == null || !_options.Records.Any())
+        {
+            _logger.LogWarning("No DNS records found to update");
+            return;
+        }
+        
+        _logger.LogInformation("Found {count} records to update", _options.Records.Count());
         foreach (var record in _options.Records)
         {
             try
