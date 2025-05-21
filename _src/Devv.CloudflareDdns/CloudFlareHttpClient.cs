@@ -10,7 +10,8 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
     private readonly HttpClient _httpClient;
     private readonly CloudFlareOptions _options;
 
-    public CloudFlareHttpClient(ILogger<CloudFlareHttpClient> logger, HttpClient httpClient,
+    public CloudFlareHttpClient(ILogger<CloudFlareHttpClient> logger,
+        HttpClient httpClient,
         IOptions<CloudFlareOptions> options)
     {
         _logger = logger;
@@ -20,6 +21,18 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
 
     public async Task RunAsync(string publicIp)
     {
+        
+        Console.WriteLine("=== CloudFlareOptions ===");
+        Console.WriteLine($"Email = {_options.Email}");
+        Console.WriteLine($"Key   = {_options.Key}");
+        Console.WriteLine($"ApiUrl = {_options.ApiUrl}");
+        Console.WriteLine($"Records = {(_options.Records == null ? "null" : _options.Records.Length.ToString())}");
+        if (_options.Records != null)
+        {
+            foreach (var r in _options.Records)
+                Console.WriteLine($"  • {r.Name}: {r.ZoneId} / {r.DnsRecordId}");
+        }
+
         foreach (var record in _options.Records)
         {
             try
@@ -35,19 +48,21 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
         }
     }
 
-    private async Task SendPublicIpToCloudFlareAsync(string publicIp, string zoneId, string dnsRecordId,
+    private async Task SendPublicIpToCloudFlareAsync(string publicIp,
+        string zoneId,
+        string dnsRecordId,
         string recordName)
     {
         var body = new DnsRecord(dnsRecordId, recordName, publicIp, "Dynamic DNS Update");
         var request = new HttpRequestMessage(HttpMethod.Put,
-            $"/client/v4/zones/{zoneId}/dns_records/{dnsRecordId}");
+        $"/client/v4/zones/{zoneId}/dns_records/{dnsRecordId}");
         request.Content = JsonContent.Create(body);
         var response = await _httpClient.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("Failed to send public IP to CloudFlare with response {response}",
-                await response.Content.ReadAsStringAsync());
+            await response.Content.ReadAsStringAsync());
             throw new Exception("Failed to send public IP to CloudFlare");
         }
     }
@@ -66,12 +81,12 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
 
     public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
     {
-        if(_options.Records == null || !_options.Records.Any())
+        if (_options.Records == null || !_options.Records.Any())
         {
             _logger.LogWarning("No DNS records found to update");
             return;
         }
-        
+
         _logger.LogInformation("Found {count} records to update", _options.Records.Count());
         foreach (var record in _options.Records)
         {
