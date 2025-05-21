@@ -42,8 +42,7 @@ RUN dotnet publish \
       --self-contained true \
       /p:PublishSingleFile=true \
       /p:PublishTrimmed=true \      
-      -o /app/publish \
-      --no-build
+      -o /app/publish
 
 ###############################################################################
 # 3) Final: minimal Debian “Bookworm-slim” runtime-deps + non-root user
