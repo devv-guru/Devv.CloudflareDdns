@@ -3,23 +3,21 @@
 ###############################################################################
 # 1) Build + restore
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/sdk:8.0-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build  
 ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
 
-# Copy only the csproj files first (for a faster restore)
+# Copy only the csproj files first for Docker layer caching
 COPY _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
      _src/Devv.CloudflareDdns/Devv.CloudflareDdns.csproj ./
 
-RUN dotnet restore ./CloudflareDdns.Server.csproj
+RUN dotnet restore CloudflareDdns.Server.csproj
 
 # Copy the rest of your code
 COPY . .
 
-WORKDIR /src
-
-# Build out the binaries
+# Build binaries
 RUN dotnet build \
       _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
       -c $BUILD_CONFIGURATION \
@@ -46,27 +44,27 @@ RUN dotnet publish \
       --no-build
 
 ###############################################################################
-# 3) Final: minimal Debian “runtime-deps” with non-root user
+# 3) Final: minimal Debian “Bookworm-slim” runtime-deps
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final 
 
-# Create and switch to a non-root user
 ARG APP_UID=1000
 ARG APP_GID=1000
+
+# Create a non-root app user
 RUN groupadd --gid $APP_GID app \
  && useradd --uid $APP_UID --gid $APP_GID \
             --home-dir /app --no-log-init --create-home app
 
 WORKDIR /app
+USER app
 
-# Copy over the single-file publish output
+# Copy the published single-file app
 COPY --from=publish /app/publish ./
 
-# Expose the same ports you’ve configured in ASP.NET Core
+# Tell Kestrel which ports to listen on
 ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
 EXPOSE 8080 8081
 
-USER app
-
-# Launch the single-file Linux executable
+# Run it!
 ENTRYPOINT ["./CloudflareDdns.Server"]
