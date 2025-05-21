@@ -38,8 +38,8 @@ public class Program
 
             builder.Services.AddHealthChecks();
             
-            var section = builder.Configuration.GetSection(CloudFlareOptions.SectionName);
-            //var opts    = section.Get<CloudFlareOptions>();
+            // var section = builder.Configuration.GetSection(CloudFlareOptions.SectionName);
+            // var opts    = section.Get<CloudFlareOptions>();
             
             builder.Services.AddCloudflareDynamicDns(builder.Configuration);
 
