@@ -16,8 +16,20 @@ public class Program
         try
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(8080);
+
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.ListenAnyIP(8081, listenOptions =>
+                        listenOptions.UseHttps());
+                }
+            });
+
             var config = builder.Configuration;
-            
+
             config.AddEnvironmentVariables();
             builder.Services.AddCloudflareDynamicDns(config);
 
@@ -28,8 +40,8 @@ public class Program
                     .WriteTo.Console());
 
             builder.Services.AddHealthChecks();
-            
-            
+
+
             foreach (var keyValuePair in config.AsEnumerable())
             {
                 Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
