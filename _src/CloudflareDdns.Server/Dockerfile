@@ -48,23 +48,24 @@ RUN dotnet publish \
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final
 
 ARG APP_UID=1000
-ARG APP_GID=1000
 
-# Create group only if it doesn't exist, then user
-RUN if ! getent group app >/dev/null; then \
-      groupadd --gid $APP_GID app; \
-    fi && \
-    useradd --uid $APP_UID --gid $APP_GID \
-            --home-dir /app --no-log-init --create-home app
+# Create a non-root user (and a matching group) in one step
+RUN useradd \
+      --uid $APP_UID \
+      --home-dir /app \
+      --no-log-init \
+      --create-home \
+      --shell /sbin/nologin \
+      app
 
 WORKDIR /app
 USER app
 
-# Copy publish output
+# Copy the published single-file output
 COPY --from=publish /app/publish ./
 
 # Configure Kestrel ports
-ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
+ENV ASPNETCORE_URLS="http://+:8080;https://+:8081"
 EXPOSE 8080 8081
 
 ENTRYPOINT ["./CloudflareDdns.Server"]
