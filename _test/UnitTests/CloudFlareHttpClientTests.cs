@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using Record=Devv.CloudflareDdns.Record;
 
 public class CloudFlareHttpClientTests
 {
@@ -31,7 +32,7 @@ public class CloudFlareHttpClientTests
 
         var httpClient = new HttpClient(handlerMock.Object);
         var logger = Mock.Of<ILogger<CloudFlareHttpClient>>();
-        var options = Options.Create(new CloudFlareOptions { Records = new Records[0] });
+        var options = Options.Create(new CloudFlareOptions { Records = new Record[0] });
 
         var client = new CloudFlareHttpClient(logger, httpClient, options);
 
@@ -46,7 +47,7 @@ public class CloudFlareHttpClientTests
     public async Task UpdateDnsRecordsAsync_LogsAndCallsApi()
     {
         // Arrange
-        var record = new Records { ZoneId = "zone", DnsRecordId = "dns", Name = "test.com" };
+        var record = new Record { ZoneId = "zone", DnsRecordId = "dns", Name = "test.com" };
         var options = Options.Create(new CloudFlareOptions { Records = new[] { record } });
         var logger = Mock.Of<ILogger<CloudFlareHttpClient>>();
 

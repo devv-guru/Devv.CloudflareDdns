@@ -27,12 +27,9 @@ public class Program
                         listenOptions.UseHttps());
                 }
             });
-
-            var config = builder.Configuration;
-
-            config.AddEnvironmentVariables();
             
-
+            builder.Configuration.AddEnvironmentVariables();
+            
             builder.Services.AddSerilog((services, lc) =>
                 lc.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
                         path != null && path.Contains("/_health")))
@@ -41,22 +38,7 @@ public class Program
 
             builder.Services.AddHealthChecks();
             
-            foreach (var keyValuePair in config.AsEnumerable())
-            {
-                Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
-            }
-            
-            var section = config.GetSection(CloudFlareOptions.SectionName);
-            var opts    = section.Get<CloudFlareOptions>();
-            
-            Console.WriteLine($"Records array is {(opts.Records == null ? "null" : opts.Records.Length.ToString())}");
-            if (opts.Records is not null)
-            {
-                for (var i = 0; i < opts.Records.Length; i++)
-                    Console.WriteLine($" • [{i}] {opts.Records[i].Name} ({opts.Records[i].ZoneId})");
-            }
-            
-            builder.Services.AddCloudflareDynamicDns(config);
+            builder.Services.AddCloudflareDynamicDns(builder.Configuration);
 
             var app = builder.Build();
 
