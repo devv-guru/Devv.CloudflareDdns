@@ -31,7 +31,7 @@ public class Program
             var config = builder.Configuration;
 
             config.AddEnvironmentVariables();
-            builder.Services.AddCloudflareDynamicDns(config);
+            
 
             builder.Services.AddSerilog((services, lc) =>
                 lc.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
@@ -40,12 +40,13 @@ public class Program
                     .WriteTo.Console());
 
             builder.Services.AddHealthChecks();
-
-
+            
             foreach (var keyValuePair in config.AsEnumerable())
             {
                 Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
             }
+            
+            builder.Services.AddCloudflareDynamicDns(config);
 
             var app = builder.Build();
 
