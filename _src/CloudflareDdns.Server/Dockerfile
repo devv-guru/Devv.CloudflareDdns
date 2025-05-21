@@ -1,23 +1,24 @@
 # syntax=docker/dockerfile:1.4
 
 ###############################################################################
-# 1) Build + restore
+# 1) Restore + build
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build  
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
 
-# Copy only the csproj files first for Docker layer caching
-COPY _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
-     _src/Devv.CloudflareDdns/Devv.CloudflareDdns.csproj ./
+# Copy each csproj into its matching folder for restore
+COPY _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj _src/CloudflareDdns.Server/
+COPY _src/Devv.CloudflareDdns/Devv.CloudflareDdns.csproj _src/Devv.CloudflareDdns/
 
-RUN dotnet restore CloudflareDdns.Server.csproj
+# Restore Server (which will pull in Devv.CloudflareDdns as a project reference)
+RUN dotnet restore _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj
 
-# Copy the rest of your code
+# Copy the rest of your source
 COPY . .
 
-# Build binaries
+# Build into /app/build
 RUN dotnet build \
       _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
       -c $BUILD_CONFIGURATION \
@@ -29,8 +30,6 @@ RUN dotnet build \
 ###############################################################################
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-
-WORKDIR /src
 
 RUN dotnet publish \
       _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
@@ -44,14 +43,14 @@ RUN dotnet publish \
       --no-build
 
 ###############################################################################
-# 3) Final: minimal Debian “Bookworm-slim” runtime-deps
+# 3) Final: minimal Debian “Bookworm-slim” runtime-deps + non-root user
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final 
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final
 
 ARG APP_UID=1000
 ARG APP_GID=1000
 
-# Create a non-root app user
+# create non-root user
 RUN groupadd --gid $APP_GID app \
  && useradd --uid $APP_UID --gid $APP_GID \
             --home-dir /app --no-log-init --create-home app
@@ -59,12 +58,12 @@ RUN groupadd --gid $APP_GID app \
 WORKDIR /app
 USER app
 
-# Copy the published single-file app
+# copy the published single-file output
 COPY --from=publish /app/publish ./
 
-# Tell Kestrel which ports to listen on
+# tell Kestrel which ports to bind
 ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
 EXPOSE 8080 8081
 
-# Run it!
+# run
 ENTRYPOINT ["./CloudflareDdns.Server"]
