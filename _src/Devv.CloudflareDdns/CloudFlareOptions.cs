@@ -5,8 +5,7 @@ using System.ComponentModel.DataAnnotations;
 public class CloudFlareOptions
 {
     public const string SectionName = "CloudflareDdns";
-
-    [Url]
+    
     public Uri? ApiUrl { get; set; } = new Uri("https://api.cloudflare.com");
 
     public string? Email { get; set; }
