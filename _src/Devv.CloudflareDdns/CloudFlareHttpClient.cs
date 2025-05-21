@@ -19,35 +19,6 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
         _options = options.Value;
     }
 
-    public async Task RunAsync(string publicIp)
-    {
-        
-        Console.WriteLine("=== CloudFlareOptions ===");
-        Console.WriteLine($"Email = {_options.Email}");
-        Console.WriteLine($"Key   = {_options.Key}");
-        Console.WriteLine($"ApiUrl = {_options.ApiUrl}");
-        Console.WriteLine($"Records = {(_options.Records == null ? "null" : _options.Records.Length.ToString())}");
-        if (_options.Records != null)
-        {
-            foreach (var r in _options.Records)
-                Console.WriteLine($"  • {r.Name}: {r.ZoneId} / {r.DnsRecordId}");
-        }
-
-        foreach (var record in _options.Records)
-        {
-            try
-            {
-                _logger.LogInformation("Updating DNS record {recordName}", record.Name);
-                await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name);
-                _logger.LogInformation("DNS record {recordName} updated", record.Name);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An error occurred while updating the DNS record");
-            }
-        }
-    }
-
     private async Task SendPublicIpToCloudFlareAsync(string publicIp,
         string zoneId,
         string dnsRecordId,
@@ -81,6 +52,17 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
 
     public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
     {
+        _logger.LogWarning("=== CloudFlareOptions ===");
+        _logger.LogWarning($"Email = {_options.Email}");
+        _logger.LogWarning($"Key   = {_options.Key}");
+        _logger.LogWarning($"ApiUrl = {_options.ApiUrl}");
+        _logger.LogWarning($"Records = {(_options.Records == null ? "null" : _options.Records.Length.ToString())}");
+        if (_options.Records != null)
+        {
+            foreach (var r in _options.Records)
+                _logger.LogWarning($"  • {r.Name}: {r.ZoneId} / {r.DnsRecordId}");
+        }
+        
         if (_options.Records == null || !_options.Records.Any())
         {
             _logger.LogWarning("No DNS records found to update");
