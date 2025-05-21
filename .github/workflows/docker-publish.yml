@@ -30,7 +30,7 @@ jobs:
       - name: Build & push
         uses: docker/build-push-action@v5
         with:
-          context: ./_src
+          context: .
           file:    ./_src/CloudflareDdns.Server/Dockerfile
           push:    true
           tags: |
