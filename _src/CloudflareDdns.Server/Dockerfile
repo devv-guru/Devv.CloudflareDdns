@@ -50,20 +50,21 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final
 ARG APP_UID=1000
 ARG APP_GID=1000
 
-# create non-root user
-RUN groupadd --gid $APP_GID app \
- && useradd --uid $APP_UID --gid $APP_GID \
+# Create group only if it doesn't exist, then user
+RUN if ! getent group app >/dev/null; then \
+      groupadd --gid $APP_GID app; \
+    fi && \
+    useradd --uid $APP_UID --gid $APP_GID \
             --home-dir /app --no-log-init --create-home app
 
 WORKDIR /app
 USER app
 
-# copy the published single-file output
+# Copy publish output
 COPY --from=publish /app/publish ./
 
-# tell Kestrel which ports to bind
+# Configure Kestrel ports
 ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
 EXPOSE 8080 8081
 
-# run
 ENTRYPOINT ["./CloudflareDdns.Server"]
