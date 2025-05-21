@@ -6,16 +6,16 @@ public class CloudFlareOptions
 {
     public const string SectionName = "CloudflareDdns";
 
-    [Required, Url]
+    [Url]
     public Uri? ApiUrl { get; set; } = new Uri("https://api.cloudflare.com");
-    
+
     public string? Email { get; set; }
 
     [Required]
     public string? Key { get; set; }
 
     [Required]
-    public Record[]? Records { get; set; }
+    public Record[] Records { get; set; } = Array.Empty<Record>();
 }
 
 public class Record
