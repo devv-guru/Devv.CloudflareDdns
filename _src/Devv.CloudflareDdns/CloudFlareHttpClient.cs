@@ -29,7 +29,7 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
         dnsRecordId,
         recordName,
         publicIp,
-        $"Dynamic DNS Update {DateTime.UtcNow:o}"
+        $"Dynamic DNS Update {DateTime.UtcNow:g}"
         );
 
         // Using PutAsJsonAsync with your source-generated context:
