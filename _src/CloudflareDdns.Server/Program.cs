@@ -16,11 +16,20 @@ public class Program
         try
         {
             var builder = WebApplication.CreateBuilder(args);
-            var config = builder.Configuration;
-            
-            config.AddEnvironmentVariables();
-            builder.Services.AddCloudflareDynamicDns(config);
 
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(8080);
+
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.ListenAnyIP(8081, listenOptions =>
+                        listenOptions.UseHttps());
+                }
+            });
+            
+            builder.Configuration.AddEnvironmentVariables();
+            
             builder.Services.AddSerilog((services, lc) =>
                 lc.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
                         path != null && path.Contains("/_health")))
@@ -29,11 +38,10 @@ public class Program
 
             builder.Services.AddHealthChecks();
             
+            var section = builder.Configuration.GetSection(CloudFlareOptions.SectionName);
+            var opts    = section.Get<CloudFlareOptions>();
             
-            foreach (var keyValuePair in config.AsEnumerable())
-            {
-                Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
-            }
+            builder.Services.AddCloudflareDynamicDns(builder.Configuration);
 
             var app = builder.Build();
 
