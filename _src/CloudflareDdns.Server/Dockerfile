@@ -12,8 +12,10 @@ WORKDIR /src
 COPY _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj _src/CloudflareDdns.Server/
 COPY _src/Devv.CloudflareDdns/Devv.CloudflareDdns.csproj _src/Devv.CloudflareDdns/
 
-# Restore Server (which will pull in Devv.CloudflareDdns as a project reference)
-RUN dotnet restore _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj
+# Restore Server (including linux-x64 RID so assets.json has net8.0/linux-x64)
+RUN dotnet restore \
+      _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
+      -r linux-x64
 
 # Copy the rest of your source
 COPY . .
