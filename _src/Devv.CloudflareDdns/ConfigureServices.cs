@@ -11,16 +11,6 @@ namespace Devv.CloudflareDdns
     {
         public static IServiceCollection AddCloudflareDynamicDns(this IServiceCollection services, IConfiguration configuration)
         {
-            var section = configuration.GetSection(CloudFlareOptions.SectionName);
-            var opts    = section.Get<CloudFlareOptions>();
-            
-            Console.WriteLine($"Records array is {(opts.Records == null ? "null" : opts.Records.Length.ToString())}");
-            if (opts.Records is not null)
-            {
-                for (var i = 0; i < opts.Records.Length; i++)
-                    Console.WriteLine($" • [{i}] {opts.Records[i].Name} ({opts.Records[i].ZoneId})");
-            }
-            
             services.Configure<CloudFlareOptions>
                 (configuration.GetSection(CloudFlareOptions.SectionName));
 

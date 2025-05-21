@@ -46,6 +46,16 @@ public class Program
                 Log.Information("{key} = {value}", keyValuePair.Key, keyValuePair.Value);
             }
             
+            var section = config.GetSection(CloudFlareOptions.SectionName);
+            var opts    = section.Get<CloudFlareOptions>();
+            
+            Console.WriteLine($"Records array is {(opts.Records == null ? "null" : opts.Records.Length.ToString())}");
+            if (opts.Records is not null)
+            {
+                for (var i = 0; i < opts.Records.Length; i++)
+                    Console.WriteLine($" • [{i}] {opts.Records[i].Name} ({opts.Records[i].ZoneId})");
+            }
+            
             builder.Services.AddCloudflareDynamicDns(config);
 
             var app = builder.Build();
