@@ -49,14 +49,16 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim AS final
 
 ARG APP_UID=1000
 
-# Create a non-root user (and a matching group) in one step
-RUN useradd \
-      --uid $APP_UID \
-      --home-dir /app \
-      --no-log-init \
-      --create-home \
-      --shell /sbin/nologin \
-      app
+# Create 'app' user only if it doesn't exist
+RUN if ! id app >/dev/null 2>&1; then \
+      useradd \
+        --uid $APP_UID \
+        --home-dir /app \
+        --no-log-init \
+        --create-home \
+        --shell /sbin/nologin \
+        app; \
+    fi
 
 WORKDIR /app
 USER app
