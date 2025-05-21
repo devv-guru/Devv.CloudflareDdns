@@ -15,7 +15,8 @@ COPY _src/Devv.CloudflareDdns/Devv.CloudflareDdns.csproj _src/Devv.CloudflareDdn
 # Restore Server (including linux-x64 RID so assets.json has net8.0/linux-x64)
 RUN dotnet restore \
       _src/CloudflareDdns.Server/CloudflareDdns.Server.csproj \
-      -r linux-x64
+      -r linux-x64 \
+      /p:PublishReadyToRun=true
 
 # Copy the rest of your source
 COPY . .
