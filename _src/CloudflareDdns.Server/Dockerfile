@@ -69,7 +69,7 @@ USER app
 COPY --from=publish /app/publish ./
 
 # Configure Kestrel ports
-ENV ASPNETCORE_URLS="http://+:8080;https://+:8081"
-EXPOSE 8080 8081
+ENV ASPNETCORE_URLS="http://+:8080;"
+EXPOSE 8080
 
 ENTRYPOINT ["./CloudflareDdns.Server"]
