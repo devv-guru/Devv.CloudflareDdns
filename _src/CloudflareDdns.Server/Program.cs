@@ -16,17 +16,6 @@ public class Program
         try
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.ListenAnyIP(8080);
-
-                if (builder.Environment.IsDevelopment())
-                {
-                    options.ListenAnyIP(8081, listenOptions =>
-                        listenOptions.UseHttps());
-                }
-            });
             
             builder.Configuration.AddEnvironmentVariables();
             
@@ -38,8 +27,8 @@ public class Program
 
             builder.Services.AddHealthChecks();
             
-            // var section = builder.Configuration.GetSection(CloudFlareOptions.SectionName);
-            // var opts    = section.Get<CloudFlareOptions>();
+            var section = builder.Configuration.GetSection(CloudFlareOptions.SectionName);
+            var opts    = section.Get<CloudFlareOptions>();
             
             builder.Services.AddCloudflareDynamicDns(builder.Configuration);
 
