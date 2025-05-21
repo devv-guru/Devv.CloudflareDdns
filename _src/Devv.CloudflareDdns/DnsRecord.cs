@@ -2,6 +2,8 @@
 
 public class DnsRecord
 {
+    public DnsRecord() {}
+
     public DnsRecord(string id, string domain, string publicIp, string comment, string type = "A")
     {
         Id = id;
@@ -12,12 +14,19 @@ public class DnsRecord
         // Tags = new List<string> { "dynamic-dns" };
     }
 
-    public string Content { get; set; }
-    public string Name { get; set; }
+    public string Id { get; set; } = default!;
+
+    public string Name { get; set; } = default!;
+
+    public string Content { get; set; } = default!;
+
+    public string Comment { get; set; } = default!;
+
+    public string Type { get; set; } = "A";
+
     public bool Proxied { get; set; } = true;
-    public string Type { get; set; }
-    public string Comment { get; set; }
-    public string Id { get; set; }
-    public List<string> Tags { get; set; } = new List<string>();
+
     public int Ttl { get; set; } = 1;
+
+    public List<string> Tags { get; set; } = new();
 }
