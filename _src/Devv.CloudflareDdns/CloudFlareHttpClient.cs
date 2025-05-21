@@ -56,7 +56,7 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
         _logger.LogWarning($"Email = {_options.Email}");
         _logger.LogWarning($"Key   = {_options.Key}");
         _logger.LogWarning($"ApiUrl = {_options.ApiUrl}");
-        _logger.LogWarning($"Records = {(_options.Records == null ? "null" : _options.Records.Count.ToString())}");
+        _logger.LogWarning($"Records = {(_options.Records == null ? "null" : _options.Records.Length.ToString())}");
         if (_options.Records != null)
         {
             foreach (var r in _options.Records)
