@@ -2,7 +2,7 @@ name: Build & Push Docker Image to ACR
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
 
 env:
   ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}    # vanfmly.azurecr.io
