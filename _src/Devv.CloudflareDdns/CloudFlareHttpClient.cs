@@ -52,17 +52,6 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
 
     public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
     {
-        _logger.LogWarning("=== CloudFlareOptions ===");
-        _logger.LogWarning($"Email = {_options.Email}");
-        _logger.LogWarning($"Key   = {_options.Key}");
-        _logger.LogWarning($"ApiUrl = {_options.ApiUrl}");
-        _logger.LogWarning($"Records = {(_options.Records == null ? "null" : _options.Records.Length.ToString())}");
-        if (_options.Records != null)
-        {
-            foreach (var r in _options.Records)
-                _logger.LogWarning($"  • {r.Name}: {r.ZoneId} / {r.DnsRecordId}");
-        }
-        
         if (_options.Records == null || !_options.Records.Any())
         {
             _logger.LogWarning("No DNS records found to update");

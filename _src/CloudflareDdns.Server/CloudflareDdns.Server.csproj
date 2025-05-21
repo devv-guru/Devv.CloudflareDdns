@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<UserSecretsId>7cf4c760-5c39-4e98-9684-d831d9e802ae</UserSecretsId>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
 	</PropertyGroup>
 
 	<ItemGroup>
