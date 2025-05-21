@@ -24,7 +24,7 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
         string dnsRecordId,
         string recordName)
     {
-        var body = new DnsRecord(dnsRecordId, recordName, publicIp, "Dynamic DNS Update");
+        var body = new DnsRecord(dnsRecordId, recordName, publicIp, $"Dynamic DNS Update {DateTime.UtcNow}", "A");
         var request = new HttpRequestMessage(HttpMethod.Put,
         $"/client/v4/zones/{zoneId}/dns_records/{dnsRecordId}");
         request.Content = JsonContent.Create(body);

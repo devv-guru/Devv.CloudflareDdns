@@ -11,8 +11,8 @@ namespace Devv.CloudflareDdns
     {
         public static IServiceCollection AddCloudflareDynamicDns(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<CloudFlareOptions>
-                (configuration.GetSection(CloudFlareOptions.SectionName));
+            services.AddOptions<CloudFlareOptions>()
+                .Bind (configuration.GetSection(CloudFlareOptions.SectionName));
 
             services.AddHttpClient<ICloudFlareService, CloudFlareHttpClient>((sp, client) =>
             {
