@@ -22,20 +22,40 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
     private async Task SendPublicIpToCloudFlareAsync(string publicIp,
         string zoneId,
         string dnsRecordId,
-        string recordName)
+        string recordName,
+        CancellationToken cancellationToken)
     {
-        var body = new DnsRecord(dnsRecordId, recordName, publicIp, $"Dynamic DNS Update {DateTime.UtcNow}", "A");
-        var request = new HttpRequestMessage(HttpMethod.Put,
-        $"/client/v4/zones/{zoneId}/dns_records/{dnsRecordId}");
-        request.Content = JsonContent.Create(body);
-        var response = await _httpClient.SendAsync(request);
+        var body = new DnsRecord(
+        dnsRecordId,
+        recordName,
+        publicIp,
+        $"Dynamic DNS Update {DateTime.UtcNow:o}"
+        );
+
+        // Using PutAsJsonAsync with your source-generated context:
+        var response = await _httpClient.PutAsJsonAsync(
+        $"/client/v4/zones/{zoneId}/dns_records/{dnsRecordId}",
+        body,
+        CustomJsonContext.Default.DnsRecord,
+        cancellationToken
+        );
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to send public IP to CloudFlare with response {response}",
-            await response.Content.ReadAsStringAsync());
-            throw new Exception("Failed to send public IP to CloudFlare");
+            var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError(
+            "Failed to update DNS record {DnsRecordId} in zone {ZoneId}. Response: {Payload}",
+            dnsRecordId, zoneId, payload
+            );
+            throw new InvalidOperationException(
+            $"CloudFlare update failed with status {response.StatusCode}"
+            );
         }
+
+        _logger.LogInformation(
+        "Successfully updated DNS record {DnsRecordId} to {Ip} in zone {ZoneId}",
+        dnsRecordId, publicIp, zoneId
+        );
     }
 
     public async Task<string> GetPublicIpAsync(CancellationToken cancellationToken)
@@ -64,7 +84,7 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
             try
             {
                 _logger.LogInformation("Updating DNS record {recordName}", record.Name);
-                await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name);
+                await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name, cancellationToken);
                 _logger.LogInformation("DNS record {recordName} updated", record.Name);
             }
             catch (Exception e)

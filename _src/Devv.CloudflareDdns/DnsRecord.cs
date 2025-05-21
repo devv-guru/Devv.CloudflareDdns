@@ -1,9 +1,12 @@
 ﻿namespace Devv.CloudflareDdns;
 
+using System.Text.Json.Serialization;
+
 public class DnsRecord
 {
     public DnsRecord() {}
 
+    [JsonConstructor]
     public DnsRecord(string id, string domain, string publicIp, string comment, string type = "A")
     {
         Id = id;
@@ -11,7 +14,6 @@ public class DnsRecord
         Name = domain;
         Content = publicIp;
         Type = type;
-        // Tags = new List<string> { "dynamic-dns" };
     }
 
     public string Id { get; set; } = default!;
@@ -30,3 +32,6 @@ public class DnsRecord
 
     public List<string> Tags { get; set; } = new();
 }
+
+[JsonSerializable(typeof(DnsRecord))]
+internal partial class CustomJsonContext : JsonSerializerContext { }
