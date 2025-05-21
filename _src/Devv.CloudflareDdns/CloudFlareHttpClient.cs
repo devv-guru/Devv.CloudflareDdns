@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Devv.CloudflareDdns;
 
-public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
+public class CloudFlareHttpClient : ICloudFlareService
 {
     private readonly ILogger<CloudFlareHttpClient> _logger;
     private readonly HttpClient _httpClient;
@@ -57,19 +57,7 @@ public class CloudFlareHttpClient : ICloudFlareService, IPublicIpProvider
         dnsRecordId, publicIp, zoneId
         );
     }
-
-    public async Task<string> GetPublicIpAsync(CancellationToken cancellationToken)
-    {
-        var response = await _httpClient.GetAsync("https://api.ipify.org");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception("Failed to get public IP");
-        }
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
+    
     public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
     {
         if (_options.Records == null || !_options.Records.Any())
