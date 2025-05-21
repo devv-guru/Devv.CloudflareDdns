@@ -16,9 +16,9 @@ public class Program
         try
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
             builder.Configuration.AddEnvironmentVariables();
-            
+
             builder.Services.AddSerilog((services, lc) =>
                 lc.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", path =>
                         path != null && path.Contains("/_health")))
@@ -26,10 +26,12 @@ public class Program
                     .WriteTo.Console());
 
             builder.Services.AddHealthChecks();
-            
-            var section = builder.Configuration.GetSection(CloudFlareOptions.SectionName);
-            var opts    = section.Get<CloudFlareOptions>();
-            
+
+            builder.Services
+                .AddOptions<CloudFlareOptions>()
+                .Bind(builder.Configuration.GetSection(CloudFlareOptions.SectionName))
+                .ValidateDataAnnotations();
+
             builder.Services.AddCloudflareDynamicDns(builder.Configuration);
 
             var app = builder.Build();
