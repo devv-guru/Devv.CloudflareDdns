@@ -41,8 +41,7 @@ RUN dotnet publish \
       -r linux-x64 \
       --self-contained true \
       /p:PublishSingleFile=true \
-      /p:PublishTrimmed=true \
-      /p:PublishReadyToRun=true \
+      /p:PublishTrimmed=true \      
       -o /app/publish \
       --no-build
 
