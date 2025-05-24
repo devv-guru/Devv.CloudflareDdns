@@ -12,10 +12,10 @@ namespace Devv.CloudflareDdns
     {
         public static IServiceCollection AddCloudflareDynamicDns(this IServiceCollection services, IConfiguration configuration)
         {
-            // services
-            //     .AddOptions<CloudFlareOptions>()
-            //     .Bind(configuration.GetSection(CloudFlareOptions.SectionName))
-            //     .ValidateDataAnnotations();
+            services
+                .AddOptions<CloudFlareOptions>()
+                .Bind(configuration.GetSection(CloudFlareOptions.SectionName))
+                .ValidateDataAnnotations();
 
             services.AddHttpClient<ICloudFlareService, CloudFlareHttpClient>((sp, client) =>
                 {
