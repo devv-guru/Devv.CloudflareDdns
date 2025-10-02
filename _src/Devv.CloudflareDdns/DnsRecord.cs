@@ -4,16 +4,19 @@ using System.Text.Json.Serialization;
 
 public class DnsRecord
 {
-    public DnsRecord() {}
+    public DnsRecord()
+    {
+    }
 
     [JsonConstructor]
-    public DnsRecord(string id, string domain, string publicIp, string comment, string type = "A")
+    public DnsRecord(string id, string domain, string publicIp, string comment, bool proxied, string type = "A")
     {
         Id = id;
         Comment = comment;
         Name = domain;
         Content = publicIp;
         Type = type;
+        Proxied = proxied;
     }
 
     public string Id { get; set; } = default!;
@@ -34,4 +37,6 @@ public class DnsRecord
 }
 
 [JsonSerializable(typeof(DnsRecord))]
-internal partial class CustomJsonContext : JsonSerializerContext { }
+internal partial class CustomJsonContext : JsonSerializerContext
+{
+}

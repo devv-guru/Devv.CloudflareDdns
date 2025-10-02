@@ -14,4 +14,5 @@ public class Record
     public string? ZoneId { get; set; }
     public string? DnsRecordId { get; set; }
     public string? Name { get; set; }
+    public bool Proxied { get; set; } = true;
 }
