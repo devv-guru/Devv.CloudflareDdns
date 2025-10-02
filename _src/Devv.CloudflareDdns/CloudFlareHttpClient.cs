@@ -23,13 +23,15 @@ public class CloudFlareHttpClient : ICloudFlareService
         string zoneId,
         string dnsRecordId,
         string recordName,
+        bool proxied,
         CancellationToken cancellationToken)
     {
         var body = new DnsRecord(
-        dnsRecordId,
-        recordName,
-        publicIp,
-        $"Dynamic DNS Update {DateTime.UtcNow:g}"
+            dnsRecordId,
+            recordName,
+            publicIp,
+            $"Dynamic DNS Update {DateTime.UtcNow:g}",
+            proxied
         );
 
         // Using PutAsJsonAsync with your source-generated context:
@@ -72,7 +74,8 @@ public class CloudFlareHttpClient : ICloudFlareService
             try
             {
                 _logger.LogInformation("Updating DNS record {recordName}", record.Name);
-                await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name, cancellationToken);
+                await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name,
+                    record.Proxied, cancellationToken);
                 _logger.LogInformation("DNS record {recordName} updated", record.Name);
             }
             catch (Exception e)

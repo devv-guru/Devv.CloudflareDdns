@@ -9,14 +9,16 @@
 
 		<!-- NuGet package metadata -->
 		<PackageId>Devv.CloudflareDdns</PackageId>
-		<Version>1.0.2</Version>
+		<Version>1.1.0</Version>
 		<Authors>devv</Authors>
 		<Company>devv.guru</Company>
 		<Description>A .NET package to dynamically update Cloudflare DNS records based on changes to the public IP address.</Description>
 		<PackageTags>Cloudflare, DNS, Dynamic DNS, DDNS, Networking, DNS Update</PackageTags>
 		<RepositoryUrl>https://github.com/devv-guru/Devv.CloudflareDdns</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/devv-guru/Devv.CloudflareDdns</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReleaseNotes>Added configurable Proxied flag for DNS records to control Cloudflare CDN proxying</PackageReleaseNotes>
 		<AssemblyName>Devv.CloudflareDdns</AssemblyName>
 		<Title>Devv.CloudflareDdns</Title>
 		<Product>Devv.CloudflareDdns</Product>
@@ -28,10 +30,6 @@
 	<ItemGroup>
 		<None Include="README.md" Pack="true" PackagePath="" />
 		<None Include="images\devv.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
-	
-	<ItemGroup>
-
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

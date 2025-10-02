@@ -7,13 +7,14 @@ public class DnsRecord
     public DnsRecord() {}
 
     [JsonConstructor]
-    public DnsRecord(string id, string domain, string publicIp, string comment, string type = "A")
+    public DnsRecord(string id, string domain, string publicIp, string comment, bool proxied = true, string type = "A")
     {
         Id = id;
         Comment = comment;
         Name = domain;
         Content = publicIp;
         Type = type;
+        Proxied = proxied;
     }
 
     public string Id { get; set; } = default!;

@@ -31,7 +31,8 @@ Add the required settings to your `appsettings.json` file:
       {
         "ZoneId": "YourZoneId",
         "DnsRecordId": "YourRecordId",
-        "Name": "YourRecordName"
+        "Name": "YourRecordName",
+        "Proxied": true
       }
     ]
   }
@@ -45,6 +46,7 @@ Add the required settings to your `appsettings.json` file:
 - **ZoneId**: The ID of your Cloudflare zone.
 - **DnsRecordId**: The DNS record ID to update.
 - **Name**: The DNS record name (e.g., `example.com`).
+- **Proxied**: (Optional) Whether to proxy the DNS record through Cloudflare's CDN (defaults to `true`).
 
 ## Usage
 
@@ -72,7 +74,8 @@ Below is a basic example of `appsettings.json` configuration:
       {
         "ZoneId": "zone-id-here",
         "DnsRecordId": "dns-record-id-here",
-        "Name": "example.com"
+        "Name": "example.com",
+        "Proxied": true
       }
     ]
   }

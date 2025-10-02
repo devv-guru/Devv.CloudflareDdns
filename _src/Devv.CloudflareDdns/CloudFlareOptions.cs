@@ -27,4 +27,6 @@ public class Record
 
     [Required]
     public string? Name { get; set; }
+
+    public bool Proxied { get; set; } = true;
 }
