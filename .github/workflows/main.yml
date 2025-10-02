@@ -25,10 +25,10 @@ jobs:
             8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.PROJECT }}
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build ${{ env.PROJECT }} --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+        run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
 
       - name: Test
         run: dotnet test --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal
