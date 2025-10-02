@@ -73,6 +73,12 @@ public class CloudFlareHttpClient : ICloudFlareService
         {
             try
             {
+                if (string.IsNullOrEmpty(record.ZoneId) || string.IsNullOrEmpty(record.DnsRecordId) || string.IsNullOrEmpty(record.Name))
+                {
+                    _logger.LogWarning("Skipping invalid record: ZoneId, DnsRecordId, and Name are required");
+                    continue;
+                }
+
                 _logger.LogInformation("Updating DNS record {recordName}", record.Name);
                 await SendPublicIpToCloudFlareAsync(publicIp, record.ZoneId, record.DnsRecordId, record.Name,
                     record.Proxied, cancellationToken);

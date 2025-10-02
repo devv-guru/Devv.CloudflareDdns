@@ -1,6 +1,11 @@
 
 # Cloudflare Dynamic DNS Updater
 
+[![.NET Release & NuGet Publish](https://github.com/devv-guru/Devv.CloudflareDdns/actions/workflows/main.yml/badge.svg)](https://github.com/devv-guru/Devv.CloudflareDdns/actions/workflows/main.yml)
+[![NuGet](https://img.shields.io/nuget/v/Devv.CloudflareDdns.svg)](https://www.nuget.org/packages/Devv.CloudflareDdns/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Devv.CloudflareDdns.svg)](https://www.nuget.org/packages/Devv.CloudflareDdns/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A .NET 8 package to dynamically update Cloudflare DNS records based on changes to your public IP address. This package integrates with Cloudflare's API and automates the process of updating DNS records when the public IP changes.
 
 ## Features
