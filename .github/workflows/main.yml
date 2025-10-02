@@ -3,7 +3,7 @@ name: .NET Release & NuGet Publish
 on:
   push:
     branches:
-      - main   # or whichever branches you prefer
+      - main
 
 env:
   BUILD_CONFIGURATION: Release
@@ -14,40 +14,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout your code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install the .NET SDK
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          package-type: sdk
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            6.0.x
+            8.0.x
 
-      # 3. Restore NuGet packages
       - name: Restore dependencies
         run: dotnet restore ${{ env.PROJECT }}
 
-      # 4. Build the project
       - name: Build
         run: dotnet build ${{ env.PROJECT }} --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
 
-      # 5. Pack the project into a NuGet package
+      - name: Test
+        run: dotnet test --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal
+
       - name: Pack
-        # Here we use GitHub’s run number as a version suffix
         run: |
           dotnet pack ${{ env.PROJECT }} \
             --configuration ${{ env.BUILD_CONFIGURATION }} \
             --no-build \
-            /p:PackageVersion=1.0.${{ github.run_number }}
+            --output ./artifacts
 
-      # 6. Push to NuGet.org
       - name: Push package to NuGet.org
+        if: success()
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget push "**/*.nupkg" \
+          dotnet nuget push "./artifacts/*.nupkg" \
             --api-key $NUGET_API_KEY \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate

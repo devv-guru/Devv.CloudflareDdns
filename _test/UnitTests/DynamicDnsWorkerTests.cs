@@ -1,9 +1,7 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Devv.CloudflareDdns;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 
 public class DynamicDnsWorkerTests
 {
@@ -19,7 +17,14 @@ public class DynamicDnsWorkerTests
             .ReturnsAsync("1.2.3.4")
             .ReturnsAsync("5.6.7.8");
 
-        var worker = new DynamicDnsWorker(ipProvider.Object, cloudFlareService.Object, logger);
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddScoped(_ => ipProvider.Object);
+        serviceCollection.AddScoped(_ => cloudFlareService.Object);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
+        var worker = new DynamicDnsWorker(logger, scopeFactory);
 
         var cts = new CancellationTokenSource();
         cts.CancelAfter(200); // Short run

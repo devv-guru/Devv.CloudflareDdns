@@ -13,34 +13,85 @@ using Record=Devv.CloudflareDdns.Record;
 public class CloudFlareHttpClientTests
 {
     [Fact]
-    public async Task GetPublicIpAsync_ReturnsIp()
+    public async Task UpdateDnsRecordsAsync_WithProxiedTrue_CallsApi()
     {
         // Arrange
+        var record = new Record { ZoneId = "zone", DnsRecordId = "dns", Name = "test.com", Proxied = true };
+        var options = Options.Create(new CloudFlareOptions { Records = new[] { record } });
+        var logger = Mock.Of<ILogger<CloudFlareHttpClient>>();
+
         var handlerMock = new Mock<HttpMessageHandler>();
         handlerMock
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.ToString().Contains("api.ipify.org")),
+                ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("1.2.3.4"),
+                Content = new StringContent("{}"),
             });
 
-        var httpClient = new HttpClient(handlerMock.Object);
-        var logger = Mock.Of<ILogger<CloudFlareHttpClient>>();
-        var options = Options.Create(new CloudFlareOptions { Records = new Record[0] });
+        var httpClient = new HttpClient(handlerMock.Object)
+        {
+            BaseAddress = new System.Uri("https://api.cloudflare.com")
+        };
 
         var client = new CloudFlareHttpClient(logger, httpClient, options);
 
         // Act
-        var ip = await client.GetPublicIpAsync(CancellationToken.None);
+        await client.UpdateDnsRecordsAsync("1.2.3.4", CancellationToken.None);
 
-        // Assert
-        Assert.Equal("1.2.3.4", ip);
+        // Assert - verify the API was called
+        handlerMock.Protected().Verify(
+            "SendAsync",
+            Times.Once(),
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>()
+        );
+    }
+
+    [Fact]
+    public async Task UpdateDnsRecordsAsync_WithProxiedFalse_CallsApi()
+    {
+        // Arrange
+        var record = new Record { ZoneId = "zone", DnsRecordId = "dns", Name = "test.com", Proxied = false };
+        var options = Options.Create(new CloudFlareOptions { Records = new[] { record } });
+        var logger = Mock.Of<ILogger<CloudFlareHttpClient>>();
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("{}"),
+            });
+
+        var httpClient = new HttpClient(handlerMock.Object)
+        {
+            BaseAddress = new System.Uri("https://api.cloudflare.com")
+        };
+
+        var client = new CloudFlareHttpClient(logger, httpClient, options);
+
+        // Act
+        await client.UpdateDnsRecordsAsync("1.2.3.4", CancellationToken.None);
+
+        // Assert - verify the API was called
+        handlerMock.Protected().Verify(
+            "SendAsync",
+            Times.Once(),
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>()
+        );
     }
 
     [Fact]
