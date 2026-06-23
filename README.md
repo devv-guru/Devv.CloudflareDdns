@@ -14,6 +14,7 @@ A .NET 8 package to dynamically update Cloudflare DNS records based on changes t
 - Updates DNS records via Cloudflare API when the public IP changes.
 - Configurable via appsettings for ease of use.
 - Supports multiple DNS records.
+- Optionally creates and renews Cloudflare Origin CA certificates for proxied records.
 
 ## Installation
 
@@ -39,7 +40,21 @@ Add the required settings to your `appsettings.json` file:
         "Name": "YourRecordName",
         "Proxied": true
       }
-    ]
+    ],
+    "OriginCertificates": {
+      "Enabled": true,
+      "CheckInterval": "12:00:00",
+      "RenewBeforeExpiry": "30.00:00:00",
+      "ReloadCommand": "nginx -s reload",
+      "Certificates": [
+        {
+          "Hostnames": [ "example.com", "*.example.com" ],
+          "CertificatePath": "/certs/example.com/origin.pem",
+          "PrivateKeyPath": "/certs/example.com/origin.key",
+          "RequestedValidityDays": 5475
+        }
+      ]
+    }
   }
 }
 ```
@@ -52,6 +67,11 @@ Add the required settings to your `appsettings.json` file:
 - **DnsRecordId**: The DNS record ID to update.
 - **Name**: The DNS record name (e.g., `example.com`).
 - **Proxied**: (Optional) Whether to proxy the DNS record through Cloudflare's CDN (defaults to `true`).
+- **OriginCertificates**: (Optional) Cloudflare Origin CA certificate management for proxied records.
+- **ReloadCommand**: (Optional) command to run after one or more certificates are written.
+- **CertificatePath** and **PrivateKeyPath**: Local output paths for the certificate and generated private key.
+
+Cloudflare Origin CA certificates are only trusted by Cloudflare. They are suitable for records proxied through Cloudflare in Full Strict mode. They are not suitable for non-proxied services like Plex, where clients connect directly and require a publicly trusted certificate.
 
 ## Usage
 
@@ -82,7 +102,17 @@ Below is a basic example of `appsettings.json` configuration:
         "Name": "example.com",
         "Proxied": true
       }
-    ]
+    ],
+    "OriginCertificates": {
+      "Enabled": true,
+      "Certificates": [
+        {
+          "Hostnames": [ "example.com", "*.example.com" ],
+          "CertificatePath": "/certs/example.com/origin.pem",
+          "PrivateKeyPath": "/certs/example.com/origin.key"
+        }
+      ]
+    }
   }
 }
 ```

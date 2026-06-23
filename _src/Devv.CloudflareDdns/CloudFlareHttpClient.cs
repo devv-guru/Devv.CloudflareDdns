@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Devv.CloudflareDdns;
 
-public class CloudFlareHttpClient : ICloudFlareService
+public class CloudFlareHttpClient : ICloudFlareService, IOriginCertificateApi
 {
     private readonly ILogger<CloudFlareHttpClient> _logger;
     private readonly HttpClient _httpClient;
@@ -59,7 +59,7 @@ public class CloudFlareHttpClient : ICloudFlareService
             dnsRecordId, publicIp, zoneId
         );
     }
-    
+
     public async Task UpdateDnsRecordsAsync(string publicIp, CancellationToken cancellationToken)
     {
         if (_options.Records == null || !_options.Records.Any())
@@ -89,5 +89,48 @@ public class CloudFlareHttpClient : ICloudFlareService
                 _logger.LogError(e, "An error occurred while updating the DNS record");
             }
         }
+    }
+
+    public async Task<OriginCertificateResult> CreateOriginCertificateAsync(
+        OriginCertificate certificate,
+        string csr,
+        CancellationToken cancellationToken)
+    {
+        var request = new OriginCertificateRequest(
+            certificate.Hostnames,
+            certificate.RequestedValidityDays,
+            "origin-rsa",
+            csr);
+
+        var response = await _httpClient.PostAsJsonAsync(
+            "/client/v4/certificates",
+            request,
+            CustomJsonContext.Default.OriginCertificateRequest,
+            cancellationToken);
+
+        var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to create Cloudflare Origin CA certificate. Response: {Payload}", payload);
+            throw new InvalidOperationException(
+                $"Cloudflare Origin CA certificate creation failed with status {response.StatusCode}");
+        }
+
+        var apiResponse = await response.Content.ReadFromJsonAsync(
+            CustomJsonContext.Default.CloudflareApiResponseOriginCertificateResult,
+            cancellationToken);
+
+        if (apiResponse?.Success != true || apiResponse.Result?.Certificate is null)
+        {
+            var error = apiResponse?.Errors.FirstOrDefault()?.Message ?? "Unknown Cloudflare API error";
+            _logger.LogError(
+                "Cloudflare Origin CA certificate creation failed. Error: {Error}. Response: {Payload}",
+                error,
+                payload);
+            throw new InvalidOperationException($"Cloudflare Origin CA certificate creation failed: {error}");
+        }
+
+        return apiResponse.Result;
     }
 }

@@ -93,6 +93,11 @@ namespace Devv.CloudflareDdns
                 });
 
             services.AddHostedService<DynamicDnsWorker>();
+            services.AddSingleton<IProcessRunner, ProcessRunner>();
+            services.AddScoped<IOriginCertificateApi>(sp =>
+                (IOriginCertificateApi)sp.GetRequiredService<ICloudFlareService>());
+            services.AddScoped<IOriginCertificateService, OriginCertificateService>();
+            services.AddHostedService<OriginCertificateWorker>();
 
             return services;
         }

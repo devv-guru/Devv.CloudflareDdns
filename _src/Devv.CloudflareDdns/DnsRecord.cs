@@ -37,6 +37,8 @@ public class DnsRecord
 }
 
 [JsonSerializable(typeof(DnsRecord))]
+[JsonSerializable(typeof(OriginCertificateRequest))]
+[JsonSerializable(typeof(CloudflareApiResponse<OriginCertificateResult>))]
 internal partial class CustomJsonContext : JsonSerializerContext
 {
 }
