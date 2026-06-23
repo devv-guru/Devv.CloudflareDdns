@@ -61,3 +61,9 @@ public sealed class OriginCertificateResult
     [JsonPropertyName("expires_on")]
     public DateTimeOffset ExpiresOn { get; set; }
 }
+
+public sealed class DnsChallengeRecordResult
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+}

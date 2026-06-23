@@ -15,6 +15,7 @@ A .NET 8 package to dynamically update Cloudflare DNS records based on changes t
 - Configurable via appsettings for ease of use.
 - Supports multiple DNS records.
 - Optionally creates and renews Cloudflare Origin CA certificates for proxied records.
+- Optionally creates and renews public ACME certificates for non-proxied records using Cloudflare DNS-01 challenges.
 
 ## Installation
 
@@ -54,6 +55,26 @@ Add the required settings to your `appsettings.json` file:
           "RequestedValidityDays": 5475
         }
       ]
+    },
+    "AcmeCertificates": {
+      "Enabled": true,
+      "DirectoryUri": "https://acme-v02.api.letsencrypt.org/directory",
+      "Email": "admin@example.com",
+      "AccountKeyPath": "/certs/acme/account.key",
+      "CheckInterval": "12:00:00",
+      "RenewBeforeExpiry": "30.00:00:00",
+      "DnsPropagationDelay": "00:02:00",
+      "ValidationTimeout": "00:10:00",
+      "PollInterval": "00:00:05",
+      "ReloadCommand": "nginx -s reload",
+      "Certificates": [
+        {
+          "ZoneId": "YourZoneId",
+          "Hostnames": [ "plex.example.com" ],
+          "CertificatePath": "/certs/plex.example.com/fullchain.pem",
+          "PrivateKeyPath": "/certs/plex.example.com/privkey.pem"
+        }
+      ]
     }
   }
 }
@@ -70,8 +91,14 @@ Add the required settings to your `appsettings.json` file:
 - **OriginCertificates**: (Optional) Cloudflare Origin CA certificate management for proxied records.
 - **ReloadCommand**: (Optional) command to run after one or more certificates are written.
 - **CertificatePath** and **PrivateKeyPath**: Local output paths for the certificate and generated private key.
+- **AcmeCertificates**: (Optional) public ACME certificate management for non-proxied records using Cloudflare DNS-01 challenges.
+- **DirectoryUri**: ACME directory URL. The default is Let's Encrypt production.
+- **AccountKeyPath**: Local path where the ACME account key is stored and reused.
+- **DnsPropagationDelay**: Wait time after writing TXT records before asking the CA to validate.
 
 Cloudflare Origin CA certificates are only trusted by Cloudflare. They are suitable for records proxied through Cloudflare in Full Strict mode. They are not suitable for non-proxied services like Plex, where clients connect directly and require a publicly trusted certificate.
+
+ACME certificates are suitable for non-proxied services such as Plex. The app creates temporary `_acme-challenge` TXT records in Cloudflare, waits for propagation, validates DNS-01 challenges, writes the full chain and private key, then removes the TXT records.
 
 ## Usage
 
@@ -110,6 +137,19 @@ Below is a basic example of `appsettings.json` configuration:
           "Hostnames": [ "example.com", "*.example.com" ],
           "CertificatePath": "/certs/example.com/origin.pem",
           "PrivateKeyPath": "/certs/example.com/origin.key"
+        }
+      ]
+    },
+    "AcmeCertificates": {
+      "Enabled": true,
+      "Email": "admin@example.com",
+      "AccountKeyPath": "/certs/acme/account.key",
+      "Certificates": [
+        {
+          "ZoneId": "zone-id-here",
+          "Hostnames": [ "plex.example.com" ],
+          "CertificatePath": "/certs/plex.example.com/fullchain.pem",
+          "PrivateKeyPath": "/certs/plex.example.com/privkey.pem"
         }
       ]
     }

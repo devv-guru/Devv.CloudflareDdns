@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Devv.CloudflareDdns;
 
-public class CloudFlareHttpClient : ICloudFlareService, IOriginCertificateApi
+public class CloudFlareHttpClient : ICloudFlareService, IOriginCertificateApi, ICloudflareDnsChallengeService
 {
     private readonly ILogger<CloudFlareHttpClient> _logger;
     private readonly HttpClient _httpClient;
@@ -132,5 +132,76 @@ public class CloudFlareHttpClient : ICloudFlareService, IOriginCertificateApi
         }
 
         return apiResponse.Result;
+    }
+
+    public async Task<string> CreateTxtRecordAsync(
+        string zoneId,
+        string name,
+        string value,
+        CancellationToken cancellationToken)
+    {
+        var body = new DnsRecord(
+            string.Empty,
+            name,
+            value,
+            $"ACME DNS-01 challenge {DateTime.UtcNow:g}",
+            proxied: false,
+            type: "TXT")
+        {
+            Ttl = 120
+        };
+
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/client/v4/zones/{zoneId}/dns_records",
+            body,
+            CustomJsonContext.Default.DnsRecord,
+            cancellationToken);
+
+        var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to create ACME DNS challenge record. Response: {Payload}", payload);
+            throw new InvalidOperationException(
+                $"Cloudflare DNS challenge record creation failed with status {response.StatusCode}");
+        }
+
+        var apiResponse = await response.Content.ReadFromJsonAsync(
+            CustomJsonContext.Default.CloudflareApiResponseDnsChallengeRecordResult,
+            cancellationToken);
+
+        if (apiResponse?.Success != true || string.IsNullOrWhiteSpace(apiResponse.Result?.Id))
+        {
+            var error = apiResponse?.Errors.FirstOrDefault()?.Message ?? "Unknown Cloudflare API error";
+            _logger.LogError(
+                "Cloudflare DNS challenge record creation failed. Error: {Error}. Response: {Payload}",
+                error,
+                payload);
+            throw new InvalidOperationException($"Cloudflare DNS challenge record creation failed: {error}");
+        }
+
+        return apiResponse.Result.Id;
+    }
+
+    public async Task DeleteTxtRecordAsync(
+        string zoneId,
+        string recordId,
+        CancellationToken cancellationToken)
+    {
+        var response = await _httpClient.DeleteAsync(
+            $"/client/v4/zones/{zoneId}/dns_records/{recordId}",
+            cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+        _logger.LogWarning(
+            "Failed to delete ACME DNS challenge record {RecordId} in zone {ZoneId}. Response: {Payload}",
+            recordId,
+            zoneId,
+            payload);
     }
 }

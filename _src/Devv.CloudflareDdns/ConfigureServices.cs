@@ -96,8 +96,13 @@ namespace Devv.CloudflareDdns
             services.AddSingleton<IProcessRunner, ProcessRunner>();
             services.AddScoped<IOriginCertificateApi>(sp =>
                 (IOriginCertificateApi)sp.GetRequiredService<ICloudFlareService>());
+            services.AddScoped<ICloudflareDnsChallengeService>(sp =>
+                (ICloudflareDnsChallengeService)sp.GetRequiredService<ICloudFlareService>());
             services.AddScoped<IOriginCertificateService, OriginCertificateService>();
             services.AddHostedService<OriginCertificateWorker>();
+            services.AddScoped<IAcmeCertificateIssuer, CertesAcmeCertificateIssuer>();
+            services.AddScoped<IAcmeCertificateService, AcmeCertificateService>();
+            services.AddHostedService<AcmeCertificateWorker>();
 
             return services;
         }
