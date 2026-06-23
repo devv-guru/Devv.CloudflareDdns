@@ -62,12 +62,34 @@ public class OriginCertificateServiceTests
         runner.Verify(x => x.RunAsync("nginx -s reload", It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task EnsureCertificatesAsync_WhenHostnameIsEmpty_SkipsCertificate()
+    {
+        using var temp = new TempDirectory();
+        var certificatePath = Path.Combine(temp.Path, "origin.pem");
+        var privateKeyPath = Path.Combine(temp.Path, "origin.key");
+
+        var api = new Mock<IOriginCertificateApi>();
+        var runner = new Mock<IProcessRunner>();
+        var service = CreateService(api, runner, certificatePath, privateKeyPath, hostnames: [""]);
+
+        await service.EnsureCertificatesAsync(CancellationToken.None);
+
+        api.Verify(
+            x => x.CreateOriginCertificateAsync(
+                It.IsAny<OriginCertificate>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static OriginCertificateService CreateService(
         Mock<IOriginCertificateApi> api,
         Mock<IProcessRunner> runner,
         string certificatePath,
         string privateKeyPath,
-        string? reloadCommand = null)
+        string? reloadCommand = null,
+        string[]? hostnames = null)
     {
         var options = Options.Create(new CloudFlareOptions
         {
@@ -80,7 +102,7 @@ public class OriginCertificateServiceTests
                 [
                     new OriginCertificate
                     {
-                        Hostnames = ["example.com", "*.example.com"],
+                        Hostnames = hostnames ?? ["example.com", "*.example.com"],
                         CertificatePath = certificatePath,
                         PrivateKeyPath = privateKeyPath
                     }

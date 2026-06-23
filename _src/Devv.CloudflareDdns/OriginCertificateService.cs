@@ -84,6 +84,7 @@ public sealed class OriginCertificateService : IOriginCertificateService
     private static bool IsValid(OriginCertificate certificate)
     {
         return certificate.Hostnames.Length > 0
+               && certificate.Hostnames.All(hostname => !string.IsNullOrWhiteSpace(hostname))
                && !string.IsNullOrWhiteSpace(certificate.CertificatePath)
                && !string.IsNullOrWhiteSpace(certificate.PrivateKeyPath)
                && certificate.RequestedValidityDays > 0;
